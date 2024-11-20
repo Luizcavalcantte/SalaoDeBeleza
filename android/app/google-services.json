@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "790027153703",
+    "project_id": "meu-estabeleciemto",
+    "storage_bucket": "meu-estabeleciemto.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:790027153703:android:6530b062a745a3f4fd7902",
+        "android_client_info": {
+          "package_name": "com.gerenciamentodevendas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApFiMK-fbIHIrVZaqpa9xS2VAc3EAR89g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
