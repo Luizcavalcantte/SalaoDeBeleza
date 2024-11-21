@@ -10,39 +10,28 @@ import {
 } from 'react-native';
 import Container from '../components/Container';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import Services from '../components/Services';
+import {formatTime} from '../Api';
 
 export default function ServiceCategory() {
+  const navigation = useNavigation();
   const route = useRoute();
   const [categoryServices, setCategoryServices] = useState({
     data: route.params.data,
   });
-
-  function formatTime(time) {
-    if (time == 30) {
-      let newTime = '00:30 Minutos';
-      return newTime;
-    }
-    if (time > 30 && time % 60 == 0) {
-      let newTime =
-        time / 60 == 1
-          ? '0' + time / 60 + ':00 hora'
-          : '0' + time / 60 + ' :00 Horas';
-      return newTime;
-    } else {
-      let newTime = '0' + parseInt(time / 60) + ':' + (time % 60) + ' Horas';
-      return newTime;
-    }
-  }
 
   return (
     <Container>
       <View style={styles.header}>
         <Text style={styles.headerText}>{categoryServices.data.category}</Text>
       </View>
-      <ScrollView>
+      <ScrollView style={styles.scroll}>
         {categoryServices.data.services.map((item, key) => (
-          <TouchableOpacity style={styles.service} key={key}>
+          <TouchableOpacity
+            style={styles.service}
+            key={key}
+            onPress={() => {
+              navigation.navigate('ChosenService', {chosenService: item});
+            }}>
             <Image
               style={styles.servicesImage}
               source={{
@@ -116,5 +105,8 @@ const styles = StyleSheet.create({
   bodyText: {
     color: '#fff',
     fontSize: 16,
+  },
+  scroll: {
+    paddingBottom: 100,
   },
 });

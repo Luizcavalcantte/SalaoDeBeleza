@@ -2,11 +2,10 @@ import React from 'react';
 import {Text, StyleSheet, View, TouchableOpacity, Image} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
-export default function Services({key, data}) {
+export default function Services({data}) {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
-      key={key}
       onPress={() => {
         navigation.navigate('ServiceCategory', {data: data});
       }}>
@@ -23,7 +22,7 @@ export default function Services({key, data}) {
             <View>
               {data.services.map((item, k) => (
                 <Text style={styles.bodyText} key={k}>
-                  {item.name}
+                  - {item.name}
                 </Text>
               ))}
             </View>
