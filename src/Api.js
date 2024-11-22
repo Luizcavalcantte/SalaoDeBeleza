@@ -172,3 +172,16 @@ export function formatTime(time) {
     return newTime;
   }
 }
+
+export async function getAppointments() {
+  const docRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const appointments = data.appointments;
+
+    return appointments;
+  } else {
+    console.log('nenhum agendamento encontrado');
+  }
+}

@@ -53,8 +53,8 @@ export default function Profile() {
         <Button
           title="sair"
           onPress={() => {
-            // logOut(navigation);
-            // console.log(userInfo.uid);
+            logOut(navigation);
+            console.log(userInfo.uid);
           }}
         />
       </View>

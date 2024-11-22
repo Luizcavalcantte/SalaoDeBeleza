@@ -12,6 +12,7 @@ import Container from '../components/Container';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {formatTime} from '../Api';
 
+
 export default function ServiceCategory() {
   const navigation = useNavigation();
   const route = useRoute();
@@ -48,7 +49,6 @@ export default function ServiceCategory() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-
       <Button
         title="teste"
         onPress={() => {

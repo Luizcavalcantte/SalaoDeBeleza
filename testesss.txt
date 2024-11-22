@@ -1,0 +1,20 @@
+se no db, nao existir o dia:
+cria o dia, 
+array de horariso vazios = todos disponiveis
+,
+se existir o dia:
+checar os horarios:
+horarios vazios == disponiveis
+horarios existentes== indisponiveis
+
+
+appointments[
+    '1-10-2024'{
+        
+    }
+]
+
+
+
+
+
