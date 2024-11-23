@@ -1,18 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Button,
-  Text,
-  View,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import Container from '../components/Container';
 import {formatTime} from '../Api';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {getAppointments} from '../Api';
+import {getAppointments, getUserInfo, createAppontmentaa} from '../Api';
 
 export default function ChosenService() {
   const months = [
@@ -38,7 +31,7 @@ export default function ChosenService() {
     'Sexta-Feira',
     'Sabádo',
   ];
-  const avaliableHours = [
+  const hours = [
     '8:00',
     '8:30',
     '9:00',
@@ -70,21 +63,50 @@ export default function ChosenService() {
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const [selectedDay, setSelectedDay] = useState('');
+  const [selectedDay, setSelectedDay] = useState(currentDay);
+  const [selectedHour, setSelectedHour] = useState('');
 
   const [formatedDateList, setFormatedDateList] = useState([]);
   const [appointmentsList, setAppointmentsList] = useState([]);
+  const [avaliableHours, setAvaliableHours] = useState([]);
 
   const [showHours, setShowHours] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [userUid, setUserUid] = useState('');
 
   function getDaysInMonthSelected() {
     return new Date(selectedYear, selectedMonth, 0).getDate();
   }
+  function filterDisponibilityHours() {
+    let currentDate = selectedDay + '-' + selectedMonth + '-' + selectedYear;
+
+    checkDisponibility = appointmentsList.filter(d => d.date == currentDate);
+    if (checkDisponibility[0]) {
+      let unavailableDate = checkDisponibility[0].unavailableDate;
+
+      let newAvaliableHours = hours;
+
+      for (let i = 0; i < unavailableDate.length; i++) {
+        newAvaliableHours = newAvaliableHours.filter(
+          h => h != unavailableDate[i].hour,
+        );
+      }
+      setAvaliableHours(newAvaliableHours);
+    } else {
+      setAvaliableHours(hours);
+    }
+  }
 
   useEffect(() => {
+    filterDisponibilityHours();
     async function updateAppointments() {
       try {
         let NewAppointments = await getAppointments();
+        let newUserInfo = await getUserInfo();
+        setUserName(newUserInfo.name);
+        setUserPhone(newUserInfo.phone);
+        setUserUid(newUserInfo.uid);
         setAppointmentsList(NewAppointments);
       } catch (error) {
         console.log(error);
@@ -108,7 +130,32 @@ export default function ChosenService() {
       setFormatedDateList(daysList);
     }
     getFormatedDate();
-  }, [selectedMonth]);
+  }, [selectedMonth, selectedDay]);
+
+  async function registerAppointment() {
+    const appointmentService = {
+      date: selectedDay + '-' + selectedMonth + '-' + selectedYear,
+      unavailableDate: [
+        {
+          hour: selectedHour,
+          confirmed: false,
+          serviceName: item.chosenService.name,
+          value: item.chosenService.price.toFixed(2),
+          dayNumber: selectedDay,
+          weekDay:
+            weekDay[
+              new Date(selectedYear, selectedMonth, selectedDay).getDay()
+            ],
+          hour: selectedHour,
+          clientName: userName,
+          clientPhone: userPhone,
+          uid: userUid,
+        },
+      ],
+    };
+
+    await createAppontmentaa(appointmentService);
+  }
 
   return (
     <Container>
@@ -141,6 +188,7 @@ export default function ChosenService() {
               <TouchableOpacity
                 onPress={() => {
                   if (selectedMonth !== 0) {
+                    setSelectedDay('');
                     setSelectedMonth(m => m - 1);
                   } else {
                     setSelectedMonth(11);
@@ -152,6 +200,7 @@ export default function ChosenService() {
               <Text style={styles.monthText}>{months[selectedMonth]}</Text>
               <TouchableOpacity
                 onPress={() => {
+                  setSelectedDay('');
                   if (selectedMonth !== 11) {
                     setSelectedMonth(m => m + 1);
                   } else {
@@ -168,10 +217,17 @@ export default function ChosenService() {
               style={{marginHorizontal: 15}}>
               {formatedDateList.map((day, key) => (
                 <TouchableOpacity
-                  style={styles.week}
+                  style={[
+                    styles.week,
+                    {
+                      backgroundColor:
+                        day.number == selectedDay ? '#2196F3' : '#cb8fdd',
+                    },
+                  ]}
                   key={key}
                   onPress={() => {
                     setSelectedDay(day.number);
+                    setSelectedHour('');
                     setShowHours(true);
                   }}>
                   <Text style={styles.weekText}>
@@ -186,6 +242,7 @@ export default function ChosenService() {
                 styles.weekText,
                 {fontSize: 20, fontWeight: 'bold', marginTop: 30},
               ]}>
+              Dia {selectedDay}{' '}
               {
                 weekDay[
                   new Date(selectedYear, selectedMonth, selectedDay).getDay()
@@ -199,10 +256,17 @@ export default function ChosenService() {
               {avaliableHours.map((hour, key) => {
                 return (
                   <TouchableOpacity
-                    //'1-10-2024'
-                    style={styles.hours}
+                    style={[
+                      styles.hours,
+                      {
+                        backgroundColor:
+                          hour == selectedHour ? '#2196F3' : '#cb8fdd',
+                      },
+                    ]}
                     key={key}
-                    onPress={() => {}}>
+                    onPress={() => {
+                      setSelectedHour(hour);
+                    }}>
                     <Text style={styles.weekText}>{hour}</Text>
                   </TouchableOpacity>
                 );
@@ -218,14 +282,27 @@ export default function ChosenService() {
               }}>
               <Text style={styles.weekText}>{selectedYear}</Text>
             </View>
+            <TouchableOpacity
+              style={styles.makeAppointment}
+              onPress={() => {
+                if (selectedDay != '' && selectedHour != '') {
+                  registerAppointment();
+                } else {
+                  alert('Preencha todos os campos');
+                }
+              }}>
+              <Text style={styles.makeAppointmentText}>Marcar Horario</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.makeAppointment}
+              onPress={() => {
+                console.log(appointmentsList);
+              }}>
+              <Text style={styles.makeAppointmentText}>test</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
-      <Button
-        title="testes"
-        onPress={() => {
-          console.log(appointmentsList);
-        }}></Button>
     </Container>
   );
 }
@@ -340,5 +417,22 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: '#fff',
     backgroundColor: '#cb8fdd',
+  },
+  makeAppointment: {
+    backgroundColor: '#2196F3',
+    height: 50,
+    width: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#fff',
+    marginHorizontal: 'auto',
+    marginBottom: 50,
+  },
+  makeAppointmentText: {
+    fontSize: 18,
+    color: '#FFF',
+    fontWeight: 'bold',
   },
 });

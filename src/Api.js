@@ -74,7 +74,7 @@ export async function login(email, password, navigation) {
       password,
     );
     const user = userCredential.user;
-    console.log('user' + JSON.stringify(user));
+
     navigation.replace('MainTab');
   } catch (error) {
     alert('E-mail ou Senha Incorreta!');
@@ -92,7 +92,6 @@ export async function checkPersistence(navigation) {
   onAuthStateChanged(auth, user => {
     if (user) {
       navigation.replace('MainTab');
-      console.log(user.displayName);
     } else {
       navigation.replace('Login');
     }
@@ -120,7 +119,6 @@ export async function getUserInfo() {
       }
     });
   });
-  console.log(userUid);
 
   const docRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
   const docSnap = await getDoc(docRef);
@@ -132,7 +130,6 @@ export async function getUserInfo() {
 
     const userInfo = users.find(user => user.uid == userUid);
     if (userInfo) {
-      console.log(userInfo);
       return userInfo;
     } else {
       console.log('user info nao encontrado');
@@ -185,3 +182,75 @@ export async function getAppointments() {
     console.log('nenhum agendamento encontrado');
   }
 }
+
+export async function createAppontment(appointmentService) {
+  try {
+    const userDocRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
+    await updateDoc(userDocRef, {
+      appointments: arrayUnion(appointmentService),
+    });
+
+    alert('Horario marcado com sucesso!!');
+  } catch (error) {
+    console.log('Erro ao criar usuário: ', error);
+  }
+}
+
+export async function createAppontmentaa(appointmentService) {
+  //verificar, tavelz melhorar essa func, pois pode dar probela se 2
+  // usuarios tentarem marcar horario ao msmo tempo
+  const newAppontment = appointmentService;
+  try {
+    const docRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log('doc exist');
+      const data = docSnap.data();
+      const appointments = data.appointments;
+
+      const checkappontment = appointments.filter(
+        a => a.date == newAppontment.data,
+      );
+
+      if (checkappontment) {
+        console.log('checkappoint exist');
+        for (i = 0; i < appointments.length; i++) {
+          console.log('entrou no for');
+
+          if (appointments[i].date == newAppontment.date) {
+            console.log('entrou no if do for');
+
+            appointments[i].unavailableDate.push(
+              newAppontment.unavailableDate[0],
+            );
+            console.log(appointments);
+
+            await updateDoc(docRef, {appointments: appointments});
+            console.log('aconteceu alguma coisa');
+            i++;
+          } else {
+            i++;
+          }
+        }
+      } else {
+        console.log('algo deu errado erro 1');
+      }
+    } else {
+      console.log('algo deu errado erro 2');
+    }
+
+    alert('Horario marcado com sucesso!!');
+  } catch (error) {
+    console.log('Erro ao marcar horario: ', error);
+  }
+}
+
+// await updateDoc(userDocRef, {
+//   users: arrayUnion({
+//     name: name,
+//     email: email,
+//     phone: phone,
+//     uid: user.uid,
+//   }),
+// });
