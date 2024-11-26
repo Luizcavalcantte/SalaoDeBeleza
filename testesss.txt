@@ -1,20 +1,7 @@
-se no db, nao existir o dia:
-cria o dia, 
-array de horariso vazios = todos disponiveis
-,
-se existir o dia:
-checar os horarios:
-horarios vazios == disponiveis
-horarios existentes== indisponiveis
+**excluir horario marcado, 
 
+**nao deixar marcar em horarios do passado
+obs: oq fazer se o horario do telefone da pessoa estiver errado?
 
-appointments[
-    '1-10-2024'{
-        
-    }
-]
-
-
-
-
+** adicionar // trocar foto do usuario e editar informaçoes
 

@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
-import {Text, View, StyleSheet, ScrollView, Image} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Text, View, StyleSheet, ScrollView, Image, Button} from 'react-native';
 import {getUserAppointments} from '../Api';
 import Container from '../components/Container';
+import {useFocusEffect} from '@react-navigation/native';
 
 export default function AppointmentList() {
   const months = [
@@ -20,13 +21,22 @@ export default function AppointmentList() {
   ];
   const [appointmentList, setAppointmentList] = useState([]);
 
-  useEffect(() => {
-    async function getAppointment() {
-      const updateAppointment = await getUserAppointments();
-      setAppointmentList(updateAppointment);
-    }
-    getAppointment();
-  }, []);
+  async function getAppointment() {
+    const updateAppointment = await getUserAppointments();
+    setAppointmentList(
+      updateAppointment.sort((a, b) => {
+        const dateA = new Date(a.date.split('-').reverse().join('-'));
+        const dateB = new Date(b.date.split('-').reverse().join('-'));
+        return dateB - dateA;
+      }),
+    );
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      getAppointment();
+    }, []),
+  );
 
   return (
     <Container>
