@@ -183,61 +183,39 @@ export async function getAppointments() {
   }
 }
 
-export async function createAppontment(appointmentService) {
-  try {
-    const userDocRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
-    await updateDoc(userDocRef, {
-      appointments: arrayUnion(appointmentService),
-    });
-
-    alert('Horario marcado com sucesso!!');
-  } catch (error) {
-    console.log('Erro ao criar usuário: ', error);
-  }
-}
-
-export async function createAppontmentaa(appointmentService) {
+export async function createAppointment(appointmentService) {
   //verificar, tavelz melhorar essa func, pois pode dar probela se 2
   // usuarios tentarem marcar horario ao msmo tempo
   const newAppontment = appointmentService;
+
   try {
     const docRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      console.log('doc exist');
       const data = docSnap.data();
-      const appointments = data.appointments;
+      const appointments = data.appointments || [];
 
-      const checkappontment = appointments.filter(
-        a => a.date == newAppontment.data,
+      const checkAppontment = appointments.filter(
+        a => a.date == newAppontment.date,
       );
 
-      if (checkappontment) {
-        console.log('checkappoint exist');
+      if (checkAppontment.length > 0) {
         for (i = 0; i < appointments.length; i++) {
-          console.log('entrou no for');
-
           if (appointments[i].date == newAppontment.date) {
-            console.log('entrou no if do for');
-
             appointments[i].unavailableDate.push(
               newAppontment.unavailableDate[0],
             );
-            console.log(appointments);
 
             await updateDoc(docRef, {appointments: appointments});
-            console.log('aconteceu alguma coisa');
-            i++;
+            console.log(i);
           } else {
-            i++;
           }
         }
       } else {
-        console.log('algo deu errado erro 1');
+        await updateDoc(docRef, {appointments: arrayUnion(newAppontment)});
       }
     } else {
-      console.log('algo deu errado erro 2');
     }
 
     alert('Horario marcado com sucesso!!');
@@ -246,11 +224,38 @@ export async function createAppontmentaa(appointmentService) {
   }
 }
 
-// await updateDoc(userDocRef, {
-//   users: arrayUnion({
-//     name: name,
-//     email: email,
-//     phone: phone,
-//     uid: user.uid,
-//   }),
-// });
+export async function getUserAppointments() {
+  const userUid = await new Promise((resolve, reject) => {
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        resolve(user.uid);
+      } else {
+        reject('user nao encontrado');
+        console.log('user nao encontrado');
+      }
+    });
+  });
+
+  const docRef = doc(db, 'db', 'LeLYwn2XgFtlzfadkBHy');
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const appointments = data.appointments || [];
+
+    const userAppointment = appointments.filter(appt => {
+      for (let i = 0; i < appt.unavailableDate.length; i++) {
+        if (appt.unavailableDate[i].uid == userUid) {
+          return true;
+        }
+      }
+      return false;
+    });
+    if (userAppointment) {
+      return userAppointment;
+    } else {
+      console.log('nada encontrado');
+    }
+  } else {
+    console.log('nenhum apointment encontrado');
+  }
+}

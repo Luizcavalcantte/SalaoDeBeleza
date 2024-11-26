@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import Container from '../components/Container';
 import {formatTime} from '../Api';
 import {ScrollView} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {getAppointments, getUserInfo, createAppontmentaa} from '../Api';
+import {getAppointments, getUserInfo, createAppointment} from '../Api';
+import {useNavigation} from '@react-navigation/native';
 
 export default function ChosenService() {
   const months = [
@@ -51,6 +59,7 @@ export default function ChosenService() {
     '17:00',
     '17:30',
   ];
+  const navigation = useNavigation();
 
   const route = useRoute();
   const date = new Date();
@@ -70,10 +79,10 @@ export default function ChosenService() {
   const [appointmentsList, setAppointmentsList] = useState([]);
   const [avaliableHours, setAvaliableHours] = useState([]);
 
-  const [showHours, setShowHours] = useState(false);
   const [userName, setUserName] = useState('');
   const [userPhone, setUserPhone] = useState('');
   const [userUid, setUserUid] = useState('');
+  const [showLoadModal, setShowLoadModal] = useState(false);
 
   function getDaysInMonthSelected() {
     return new Date(selectedYear, selectedMonth, 0).getDate();
@@ -130,9 +139,10 @@ export default function ChosenService() {
       setFormatedDateList(daysList);
     }
     getFormatedDate();
-  }, [selectedMonth, selectedDay]);
+  }, [selectedMonth, selectedDay, selectedHour]);
 
   async function registerAppointment() {
+    setShowLoadModal(true);
     const appointmentService = {
       date: selectedDay + '-' + selectedMonth + '-' + selectedYear,
       unavailableDate: [
@@ -154,7 +164,11 @@ export default function ChosenService() {
       ],
     };
 
-    await createAppontmentaa(appointmentService);
+    await createAppointment(appointmentService);
+    setSelectedDay('');
+    setSelectedHour('');
+    setShowLoadModal(false);
+    navigation.navigate('AppointmentList');
   }
 
   return (
@@ -228,7 +242,6 @@ export default function ChosenService() {
                   onPress={() => {
                     setSelectedDay(day.number);
                     setSelectedHour('');
-                    setShowHours(true);
                   }}>
                   <Text style={styles.weekText}>
                     {day.weekDay.substring(0, 3)}
@@ -293,16 +306,17 @@ export default function ChosenService() {
               }}>
               <Text style={styles.makeAppointmentText}>Marcar Horario</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.makeAppointment}
-              onPress={() => {
-                console.log(appointmentsList);
-              }}>
-              <Text style={styles.makeAppointmentText}>test</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
+      {showLoadModal && (
+        <View style={styles.modal}>
+          <ActivityIndicator
+            color={'#fff'}
+            size={'large'}
+            clo></ActivityIndicator>
+        </View>
+      )}
     </Container>
   );
 }
@@ -434,5 +448,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFF',
     fontWeight: 'bold',
+  },
+  modal: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+
+    justifyContent: 'center',
   },
 });
