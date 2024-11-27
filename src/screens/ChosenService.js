@@ -69,6 +69,7 @@ export default function ChosenService() {
   const [currentMonth, setCurrentMonth] = useState(date.getMonth());
   const [currentDay, setCurrentDay] = useState(date.getDate());
   const [currentWeekDay, setCurrentWeekDay] = useState(weekDay[date.getDay()]);
+  const [currentHour, setCurrentHour] = useState(date.getHours());
 
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
@@ -172,6 +173,7 @@ export default function ChosenService() {
   }
 
   function previusMonth() {
+    setSelectedHour('');
     if (selectedYear > currentYear) {
       if (selectedMonth !== 0) {
         setSelectedDay('');
@@ -226,6 +228,7 @@ export default function ChosenService() {
               <TouchableOpacity
                 onPress={() => {
                   setSelectedDay('');
+                  setSelectedHour('');
                   if (selectedMonth !== 11) {
                     setSelectedMonth(m => m + 1);
                   } else {
@@ -240,26 +243,81 @@ export default function ChosenService() {
               horizontal
               showsHorizontalScrollIndicator={false}
               style={{marginHorizontal: 15}}>
-              {formatedDateList.map((day, key) => (
-                <TouchableOpacity
-                  style={[
-                    styles.week,
-                    {
-                      backgroundColor:
-                        day.number == selectedDay ? '#2196F3' : '#cb8fdd',
-                    },
-                  ]}
-                  key={key}
-                  onPress={() => {
-                    setSelectedDay(day.number);
-                    setSelectedHour('');
-                  }}>
-                  <Text style={styles.weekText}>
-                    {day.weekDay.substring(0, 3)}
-                  </Text>
-                  <Text style={styles.weekText}>{day.number}</Text>
-                </TouchableOpacity>
-              ))}
+              {formatedDateList.map((day, key) => {
+                if (
+                  selectedMonth == currentMonth &&
+                  day.number == currentDay &&
+                  currentHour < 18
+                ) {
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.week,
+                        {
+                          backgroundColor:
+                            day.number == selectedDay ? '#2196F3' : '#cb8fdd',
+                        },
+                      ]}
+                      key={key}
+                      onPress={() => {
+                        setSelectedDay(day.number);
+                        setSelectedHour('');
+                      }}>
+                      <Text style={styles.weekText}>
+                        {day.weekDay.substring(0, 3)}
+                      </Text>
+                      <Text style={styles.weekText}>{day.number}</Text>
+                    </TouchableOpacity>
+                  );
+                }
+                if (selectedMonth == currentMonth && day.number > currentDay) {
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.week,
+                        {
+                          backgroundColor:
+                            day.number == selectedDay ? '#2196F3' : '#cb8fdd',
+                        },
+                      ]}
+                      key={key}
+                      onPress={() => {
+                        setSelectedDay(day.number);
+                        setSelectedHour('');
+                      }}>
+                      <Text style={styles.weekText}>
+                        {day.weekDay.substring(0, 3)}
+                      </Text>
+                      <Text style={styles.weekText}>{day.number}</Text>
+                    </TouchableOpacity>
+                  );
+                }
+                if (
+                  selectedMonth > currentMonth ||
+                  selectedYear > currentYear
+                ) {
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.week,
+                        {
+                          backgroundColor:
+                            day.number == selectedDay ? '#2196F3' : '#cb8fdd',
+                        },
+                      ]}
+                      key={key}
+                      onPress={() => {
+                        setSelectedDay(day.number);
+                        setSelectedHour('');
+                      }}>
+                      <Text style={styles.weekText}>
+                        {day.weekDay.substring(0, 3)}
+                      </Text>
+                      <Text style={styles.weekText}>{day.number}</Text>
+                    </TouchableOpacity>
+                  );
+                }
+              })}
             </ScrollView>
             <Text
               style={[
@@ -278,22 +336,46 @@ export default function ChosenService() {
               showsHorizontalScrollIndicator={false}
               style={{marginHorizontal: 15}}>
               {avaliableHours.map((hour, key) => {
-                return (
-                  <TouchableOpacity
-                    style={[
-                      styles.hours,
-                      {
-                        backgroundColor:
-                          hour == selectedHour ? '#2196F3' : '#cb8fdd',
-                      },
-                    ]}
-                    key={key}
-                    onPress={() => {
-                      setSelectedHour(hour);
-                    }}>
-                    <Text style={styles.weekText}>{hour}</Text>
-                  </TouchableOpacity>
-                );
+                if (selectedDay == currentDay && hour > currentHour) {
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.hours,
+                        {
+                          backgroundColor:
+                            hour == selectedHour ? '#2196F3' : '#cb8fdd',
+                        },
+                      ]}
+                      key={key}
+                      onPress={() => {
+                        setSelectedHour(hour);
+                      }}>
+                      <Text style={styles.weekText}>{hour}</Text>
+                    </TouchableOpacity>
+                  );
+                }
+                if (
+                  selectedDay > currentDay ||
+                  selectedMonth > currentMonth ||
+                  selectedYear > currentYear
+                ) {
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.hours,
+                        {
+                          backgroundColor:
+                            hour == selectedHour ? '#2196F3' : '#cb8fdd',
+                        },
+                      ]}
+                      key={key}
+                      onPress={() => {
+                        setSelectedHour(hour);
+                      }}>
+                      <Text style={styles.weekText}>{hour}</Text>
+                    </TouchableOpacity>
+                  );
+                }
               })}
             </ScrollView>
             <View
@@ -315,13 +397,6 @@ export default function ChosenService() {
                 }
               }}>
               <Text style={styles.makeAppointmentText}>Marcar Horario</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.makeAppointment}
-              onPress={() => {
-                previusMonth();
-              }}>
-              <Text style={styles.makeAppointmentText}>teste</Text>
             </TouchableOpacity>
           </View>
         </View>
