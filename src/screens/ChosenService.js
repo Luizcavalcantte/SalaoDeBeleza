@@ -171,6 +171,23 @@ export default function ChosenService() {
     navigation.navigate('AppointmentList');
   }
 
+  function previusMonth() {
+    if (selectedYear > currentYear) {
+      if (selectedMonth !== 0) {
+        setSelectedDay('');
+        setSelectedMonth(m => m - 1);
+      } else {
+        setSelectedMonth(11);
+        setSelectedYear(y => y - 1);
+      }
+    } else if (selectedYear == currentYear && selectedMonth > currentMonth) {
+      setSelectedDay('');
+      setSelectedMonth(m => m - 1);
+    } else {
+      alert('nao é possivel marcar horario no passado');
+    }
+  }
+
   return (
     <Container>
       <ScrollView>
@@ -201,13 +218,7 @@ export default function ChosenService() {
             <View style={styles.month}>
               <TouchableOpacity
                 onPress={() => {
-                  if (selectedMonth !== 0) {
-                    setSelectedDay('');
-                    setSelectedMonth(m => m - 1);
-                  } else {
-                    setSelectedMonth(11);
-                    setSelectedYear(y => y - 1);
-                  }
+                  previusMonth();
                 }}>
                 <Icon name="arrow-back" size={30} color="#fff" />
               </TouchableOpacity>
@@ -288,7 +299,6 @@ export default function ChosenService() {
             <View
               style={{
                 width: '100%',
-
                 alignItems: 'flex-end',
                 marginTop: 20,
                 marginRight: 10,
@@ -305,6 +315,13 @@ export default function ChosenService() {
                 }
               }}>
               <Text style={styles.makeAppointmentText}>Marcar Horario</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.makeAppointment}
+              onPress={() => {
+                previusMonth();
+              }}>
+              <Text style={styles.makeAppointmentText}>teste</Text>
             </TouchableOpacity>
           </View>
         </View>

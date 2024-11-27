@@ -5,3 +5,6 @@ obs: oq fazer se o horario do telefone da pessoa estiver errado?
 
 ** adicionar // trocar foto do usuario e editar informaçoes
 
+
+
+if selectyear == currentYear && currentMonth>selelectedMonth
